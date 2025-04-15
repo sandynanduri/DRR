@@ -1,203 +1,116 @@
 # Digital Regulatory Reporting (DRR) System
 
-## Overview
-The Digital Regulatory Reporting (DRR) system is a framework for validating and processing regulatory trade reports. It supports various financial products including Interest Rate Swaps, Credit Default Swaps, Foreign Exchange trades, and more.
+// ... existing code ...
 
-## Getting Started
+## Validation Output Explanation
 
-### Prerequisites
-- Java 11 or higher
-- Maven 3.6 or higher
-
-### Building the Project
-```bash
-mvn clean install -DskipTests
+### Reference Resolution
+The system first performs reference resolution, linking various entities in the trade data:
 ```
-
-### Running the Example
-```bash
-mvn exec:java -Dexec.mainClass="org.rosetta.examples.regulatory.ValidateAndQualifySample"
+Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson, path=ReportableEvent.reportableInformation.partyInformation(0).relatedPerson(0).personReference]
 ```
+This shows the system mapping party references to their corresponding entities.
 
-## Sample Input/Output
-
-### Input Example (New Trade)
-```json
-{
-  "originatingWorkflowStep": {
-    "businessEvent": {
-      "intent": "ContractFormation",
-      "eventDate": "2024-04-15",
-      "effectiveDate": "2024-04-15",
-      "instruction": [{
-        "primitiveInstruction": {
-          "contractFormation": {
-            "legalAgreement": [{
-              "agreementDate": "2024-04-15",
-              "legalAgreementIdentification": {
-                "agreementName": {
-                  "agreementType": "MasterAgreement",
-                  "masterAgreementType": {
-                    "value": "ISDAMaster"
-                  }
-                },
-                "vintage": 2002
-              },
-              "contractualParty": [{
-                "globalReference": "LEI12345678901234567890",
-                "externalReference": "party1"
-              }, {
-                "globalReference": "LEI09876543210987654321",
-                "externalReference": "party2"
-              }]
-            }]
-          }
-        }
-      }],
-      "messageInformation": {
-        "messageType": "TRAD",
-        "messageTimestamp": "2024-04-15T10:00:00Z"
-      },
-      "reportableInformation": {
-        "trade": {
-          "tradeId": "TRADE-001",
-          "tradeDate": "2024-04-15",
-          "product": {
-            "productType": "INTEREST_RATE_SWAP",
-            "notionalAmount": 1000000.00,
-            "notionalCurrency": "USD",
-            "fixedRate": 0.05,
-            "floatingRateIndex": "LIBOR",
-            "floatingRateSpread": 0.0025,
-            "dayCountConvention": "ACT/360",
-            "paymentFrequency": "SEMI_ANNUAL",
-            "maturityDate": "2029-04-15"
-          },
-          "counterparty1": {
-            "entityId": "LEI12345678901234567890",
-            "entityName": "Counterparty 1"
-          },
-          "counterparty2": {
-            "entityId": "LEI09876543210987654321",
-            "entityName": "Counterparty 2"
-          }
-        }
-      }
-    }
-  }
-}
+### Qualification Report
+The qualification report indicates whether the trade data can be properly categorized:
 ```
-
-### Output Breakdown
-
-The system produces two main types of output:
-
-1. **Qualification Report**
-   - Product type identification
-   - Mapping to regulatory taxonomy
-   - Validation of product-specific rules
-
-2. **Validation Report**
-   - Data completeness checks
-   - Format validation
-   - Business rule compliance
-   - Reference integrity verification
-
-### Sample Output Structure
-```json
-{
-  "qualificationReport": {
-    "success": true,
-    "qualifiedName": "InterestRate_IRSwap_FixedFloat",
-    "qualifiedObjectClass": "cdm.product.template.EconomicTerms"
-  },
-  "validationReport": {
-    "validationFailures": [],
-    "warnings": [],
-    "processedData": {
-      // Processed and validated trade data
-    }
-  }
-}
+QualificationReport SUCCESS [ qualifiable objects found 3, uniquely qualified objects 3, results: [
+  QualificationResult { SUCCESS on [BusinessEvent:ContractFormation] },
+  QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] },
+  QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] }
+]]
 ```
+This shows:
+- The trade was successfully qualified as a Credit Default Swap
+- The business event was properly identified as a Contract Formation
+- All required product information was present
 
-## Key Components
+### Common Validation Messages
 
-### 1. Trade Data Structure
-- **Originating Workflow Step**: Contains the business event context
-- **Business Event**: Defines the type and timing of the event
-- **Message Information**: Contains message type and timestamp
-- **Reportable Information**: Contains the actual trade details
+#### 1. Reference Resolution Messages
+```
+Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
+```
+- Indicates successful linking of party references
+- Shows the type of entity being resolved
+- Includes the path to the reference in the data structure
 
-### 2. Product Types Supported
-- Interest Rate Swaps (IRS)
-- Credit Default Swaps (CDS)
-- Foreign Exchange (FX) trades
-- Commodity trades
-- Equity derivatives
-- Custom scenarios
+#### 2. Qualification Messages
+```
+QualificationReport SUCCESS [ qualifiable objects found 3, uniquely qualified objects 3 ]
+```
+- Shows number of objects that were qualified
+- Indicates whether the qualification was successful
+- Lists the specific types that were qualified
 
-### 3. Validation Rules
-- **Data Completeness**: All required fields must be present
-- **Format Validation**: Values must match expected formats
-- **Business Rules**: Values must be within acceptable ranges
-- **Reference Integrity**: All referenced entities must exist
+#### 3. Validation Failure Messages
+```
+Validation FAILURE on [ReportableEvent.originatingWorkflowStep.businessEvent.instruction(0).primitiveInstruction.contractFormation.legalAgreement(2).legalAgreementIdentification.agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
+```
+Common validation failures include:
+- Missing required fields
+- Invalid data formats
+- Business rule violations
+- Reference integrity issues
 
-## Common Validation Messages
+### Understanding Validation Results
 
-### Success Indicators
-- "Qualification successful"
-- "All required fields present"
-- "Business rules satisfied"
+1. **Reference Resolution**
+   - Checks if all party references are valid
+   - Verifies entity relationships
+   - Ensures data consistency
 
-### Warning Messages
-- "Optional field missing"
-- "Value outside typical range"
-- "Reference not found"
+2. **Qualification**
+   - Identifies product type
+   - Validates business event type
+   - Confirms data completeness
 
-### Error Messages
-- "Required field missing"
-- "Invalid format"
-- "Business rule violation"
-- "Reference integrity failure"
+3. **Validation**
+   - Checks data format compliance
+   - Verifies business rules
+   - Ensures regulatory requirements are met
 
-## Troubleshooting
+### Common Validation Rules
 
-### Common Issues
-1. **Unknown Lifecycle Error**
-   - Check if the event type is correctly specified
-   - Verify the message structure follows the expected format
+1. **Agreement Validation**
+   ```
+   [AgreementName->getCreditSupportAgreementType] does not exist
+   ```
+   - Ensures proper agreement type specification
+   - Validates agreement structure
+   - Checks for required agreement fields
 
-2. **Validation Failures**
-   - Review the validation report for specific field errors
-   - Check data formats and ranges
-   - Verify all required fields are present
+2. **Trade Data Validation**
+   ```
+   [Trade->getTradableProduct->getProduct->getContractualProduct->getEconomicTerms->getTerminationDate->getAdjustableDate->getDateAdjustments] does not exist
+   ```
+   - Validates trade structure
+   - Checks economic terms
+   - Ensures date adjustments are properly specified
 
-3. **Qualification Failures**
-   - Ensure product details are complete
-   - Verify product type matches the data provided
-   - Check for missing mandatory fields
+3. **Settlement Terms Validation**
+   ```
+   [Trade->getTradableProduct->getProduct->getContractualProduct->getEconomicTerms->getPayout->getCreditDefaultPayout->getSettlementTerms] does not exist
+   ```
+   - Verifies settlement terms
+   - Checks payout specifications
+   - Validates credit default swap specifics
 
-## Best Practices
+### Troubleshooting Validation Issues
 
-1. **Data Preparation**
-   - Use the correct message type for the event
-   - Include all required fields
-   - Follow the specified data formats
+1. **Missing Fields**
+   - Check if all required fields are present
+   - Verify field names and structure
+   - Ensure proper nesting of data
 
-2. **Validation**
-   - Always check the qualification report first
-   - Review all validation messages
-   - Address critical errors before warnings
+2. **Invalid References**
+   - Verify party references exist
+   - Check reference formats
+   - Ensure proper linking between entities
 
-3. **Testing**
-   - Test with sample data first
-   - Verify all product types
-   - Check edge cases and error conditions
+3. **Business Rule Violations**
+   - Review specific rule requirements
+   - Check data values against allowed ranges
+   - Verify compliance with regulatory requirements
 
-## Support
-
-For issues and questions:
-1. Check the validation logs for specific error messages
-2. Review the example files in the `examples` directory
-3. Consult the product documentation for specific requirements
+// ... existing code ...
