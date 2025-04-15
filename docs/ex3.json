@@ -1,0 +1,83 @@
+{
+    "originatingWorkflowStep": {
+      "businessEvent": {
+        "intent": "ContractFormation",
+        "eventType": "NEWT",
+        "eventDate": "2024-04-15",
+        "effectiveDate": "2024-04-17",
+        "instruction": [{
+          "primitiveInstruction": {
+            "contractFormation": {
+              "legalAgreement": [{
+                "agreementDate": "2024-01-01",
+                "legalAgreementIdentification": {
+                  "agreementName": {
+                    "agreementType": "MasterAgreement",
+                    "masterAgreementType": {
+                      "value": "ISDAMaster"
+                    }
+                  }
+                }
+              }]
+            }
+          },
+          "before": {
+            "value": {
+              "trade": {
+                "tradeIdentifier": [{
+                  "identifier": {
+                    "value": "IRS202404150001"
+                  }
+                }],
+                "tradeDate": "2024-04-15",
+                "tradableProduct": {
+                  "product": {
+                    "contractualProduct": {
+                      "productTaxonomy": [{
+                        "primaryAssetClass": {
+                          "value": "InterestRate"
+                        }
+                      }, {
+                        "source": "ISDA",
+                        "productQualifier": "InterestRateSwap"
+                      }],
+                      "economicTerms": {
+                        "effectiveDate": "2024-04-17",
+                        "terminationDate": "2029-04-17",
+                        "payout": {
+                          "interestRatePayout": {
+                            "payerReceiver": {
+                              "payer": "Party1",
+                              "receiver": "Party2"
+                            },
+                            "calculationPeriod": {
+                              "periodMultiplier": 6,
+                              "period": "Month"
+                            },
+                            "fixedRate": {
+                              "rate": 0.045
+                            },
+                            "floatingRate": {
+                              "floatingRateIndex": "EURIBOR",
+                              "indexTenor": {
+                                "periodMultiplier": 6,
+                                "period": "Month"
+                              }
+                            },
+                            "notional": {
+                              "amount": 10000000,
+                              "currency": "EUR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }]
+      }
+    }
+  }
