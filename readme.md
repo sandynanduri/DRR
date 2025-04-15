@@ -1,132 +1,179 @@
 # Digital Regulatory Reporting (DRR) System
 
-// ... existing code ...
+## Overview
+A system for validating and processing regulatory trade reports, supporting various financial products like Credit Default Swaps (CDS), Interest Rate Swaps, and more.
 
-## Sample Output Breakdown
+## Quick Start
+```bash
+# Build the project
+mvn clean install -DskipTests
 
-### Complete Sample Output
+# Run the example
+mvn exec:java -Dexec.mainClass="org.rosetta.examples.regulatory.ValidateAndQualifySample"
 ```
-14:18:32.470 [DEBUG] Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
-14:18:32.473 [DEBUG] Setting resolved object [key=bbb6a9ab, type=cdm.base.staticdata.party.NaturalPerson]
-14:18:32.477 [DEBUG] Setting resolved object [key=a3344cf2, type=cdm.base.staticdata.party.Party]
-14:18:34.091 [INFO] QualificationReport SUCCESS [
+
+## Understanding Trade Reports
+
+### 1. Sample Input (CDS Trade)
+```json
+{
+  "originatingWorkflowStep": {
+    "businessEvent": {
+      "intent": "ContractFormation",
+      "eventDate": "2011-02-04",
+      "effectiveDate": "2011-02-09",
+      "instruction": [{
+        "primitiveInstruction": {
+          "contractFormation": {
+            "legalAgreement": [{
+              "agreementDate": "2002-01-05",
+              "legalAgreementIdentification": {
+                "agreementName": {
+                  "agreementType": "MasterAgreement",
+                  "masterAgreementType": {
+                    "value": "ISDAMaster"
+                  }
+                }
+              }
+            }]
+          }
+        },
+        "before": {
+          "value": {
+            "trade": {
+              "tradeIdentifier": [{
+                "identifier": {
+                  "value": "NEWTRADEXMLXXXXXXX02"
+                }
+              }],
+              "tradeDate": "2011-02-12",
+              "tradableProduct": {
+                "product": {
+                  "contractualProduct": {
+                    "productTaxonomy": [{
+                      "primaryAssetClass": {
+                        "value": "Credit"
+                      }
+                    }, {
+                      "source": "ISDA",
+                      "productQualifier": "CreditDefaultSwap_SingleName"
+                    }],
+                    "economicTerms": {
+                      "effectiveDate": "2009-03-26",
+                      "terminationDate": "2014-06-20",
+                      "payout": {
+                        "creditDefaultPayout": {
+                          "payerReceiver": {
+                            "payer": "Party1",
+                            "receiver": "Party2"
+                          },
+                          "transactedPrice": {
+                            "marketFixedRate": 0.02
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }]
+    }
+  }
+}
+```
+
+### 2. Sample Output
+```
+[DEBUG] Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
+[INFO] QualificationReport SUCCESS [
   qualifiable objects found 3,
   uniquely qualified objects 3,
   results: [
     QualificationResult { SUCCESS on [BusinessEvent:ContractFormation] },
-    QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] },
     QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] }
   ]
 ]
-14:18:36.341 [DEBUG] Validation FAILURE on [ReportableEvent.originatingWorkflowStep.businessEvent.instruction(0).primitiveInstruction.contractFormation.legalAgreement(2).legalAgreementIdentification.agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
+[DEBUG] Validation FAILURE on [ReportableEvent...agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
 ```
 
-### Step-by-Step Output Explanation
+## Understanding the Output
 
-#### 1. Reference Resolution (Lines 1-3)
+### 1. Reference Resolution
 ```
 Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
 ```
-- **What it means**: The system is linking people and parties in the trade
-- **Example**: Linking a trader (NaturalPerson) to their role in the trade
-- **Why it's important**: Ensures all parties are properly identified and connected
+- **What it means**: System is linking people/parties in the trade
+- **Example**: Linking a trader to their role
+- **Why it matters**: Ensures all parties are properly identified
 
-#### 2. Qualification Report (Line 4)
+### 2. Qualification Report
 ```
 QualificationReport SUCCESS [
   qualifiable objects found 3,
   uniquely qualified objects 3,
   results: [
     QualificationResult { SUCCESS on [BusinessEvent:ContractFormation] },
-    QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] },
     QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] }
   ]
 ]
 ```
-- **What it means**: The system checked if the trade data is properly structured
+- **What it means**: System checked if trade data is properly structured
 - **Breaking it down**:
   - Found 3 objects to check
-  - All 3 were successfully qualified
-  - The trade is a new contract formation
+  - All were successfully qualified
+  - Trade is a new contract formation
   - It's a Credit Default Swap (CDS) trade
-  - The economic terms are for a single-name CDS
-- **Why it's important**: Confirms the trade is properly categorized
+- **Why it matters**: Confirms trade is properly categorized
 
-#### 3. Validation Results (Line 5)
+### 3. Validation Results
 ```
-Validation FAILURE on [ReportableEvent.originatingWorkflowStep.businessEvent.instruction(0).primitiveInstruction.contractFormation.legalAgreement(2).legalAgreementIdentification.agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
+Validation FAILURE on [ReportableEvent...agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
 ```
-- **What it means**: The system found some issues with the trade data
+- **What it means**: System found issues with the trade data
 - **Breaking it down**:
-  - Issue is with the credit support agreement
+  - Issue is with credit support agreement
   - Missing or incorrect agreement type
-  - Located in the legal agreement section
-- **Why it's important**: Highlights what needs to be fixed
+- **Why it matters**: Shows what needs to be fixed
 
-### Common Output Patterns
+## Common Scenarios
 
-#### 1. Reference Resolution Messages
-```
-Setting resolved object [key=XXXX, type=YYYY]
-```
-- **Format**: `[key=unique identifier, type=entity type]`
-- **Example**: `[key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]`
-- **Meaning**: Successfully linked an entity (person/party) in the trade
-
-#### 2. Qualification Messages
-```
-QualificationReport SUCCESS [qualifiable objects found X, uniquely qualified objects Y]
-```
-- **Format**: `[qualifiable objects found X, uniquely qualified objects Y]`
-- **Example**: `[qualifiable objects found 3, uniquely qualified objects 3]`
-- **Meaning**: All objects were successfully categorized
-
-#### 3. Validation Messages
-```
-Validation FAILURE on [path.to.field] for [DATA_RULE] [RuleName]
-```
-- **Format**: `[path to field] for [rule type] [rule name]`
-- **Example**: `[ReportableEvent...agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]`
-- **Meaning**: Found an issue with specific data
-
-### Understanding the Output Flow
-
-1. **First Step - Reference Resolution**
-   - System checks all party references
-   - Links people to their roles
-   - Verifies all connections are valid
-
-2. **Second Step - Qualification**
-   - System categorizes the trade
-   - Identifies product type
-   - Confirms business event type
-
-3. **Final Step - Validation**
-   - System checks all data rules
-   - Verifies required fields
-   - Ensures compliance with standards
-
-### Common Output Scenarios
-
-#### Successful Trade
+### Successful Trade
 ```
 [DEBUG] Setting resolved object [successful references]
 [INFO] QualificationReport SUCCESS [all objects qualified]
 [DEBUG] Validation PASS [no failures]
 ```
 
-#### Trade with Warnings
+### Trade with Issues
 ```
 [DEBUG] Setting resolved object [successful references]
 [INFO] QualificationReport SUCCESS [all objects qualified]
-[DEBUG] Validation WARNING [non-critical issues]
+[DEBUG] Validation FAILURE [specific issues found]
 ```
 
-#### Failed Trade
-```
-[DEBUG] Setting resolved object [some references failed]
-[INFO] QualificationReport FAILURE [some objects not qualified]
-[DEBUG] Validation FAILURE [critical issues]
-```
+## Troubleshooting
 
-// ... rest of existing code ...
+### Common Issues
+1. **Missing Fields**
+   - Check if all required fields are present
+   - Verify field names and structure
+
+2. **Invalid References**
+   - Verify party references exist
+   - Check reference formats
+
+3. **Validation Failures**
+   - Review specific field requirements
+   - Check data formats
+
+## Support
+For issues and questions:
+1. Check validation logs for specific error messages
+2. Review example files in the `examples` directory
+3. Consult product documentation for requirements
+
+
+
