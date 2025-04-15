@@ -1,29 +1,63 @@
 {
-    "reportableEvent": {
-      "eventType": "NEW_TRADE",
-      "eventTimestamp": "2024-04-15T10:00:00Z",
-      "trade": {
-        "tradeId": "TRADE-001",
-        "tradeDate": "2024-04-15",
-        "product": {
-          "productType": "INTEREST_RATE_SWAP",
-          "notionalAmount": 1000000.00,
-          "notionalCurrency": "USD",
-          "fixedRate": 0.05,
-          "floatingRateIndex": "LIBOR",
-          "floatingRateSpread": 0.0025,
-          "dayCountConvention": "ACT/360",
-          "paymentFrequency": "SEMI_ANNUAL",
-          "maturityDate": "2029-04-15"
+    "originatingWorkflowStep": {
+      "businessEvent": {
+        "intent": "ContractFormation",
+        "eventDate": "2024-04-15",
+        "effectiveDate": "2024-04-15",
+        "instruction": [{
+          "primitiveInstruction": {
+            "contractFormation": {
+              "legalAgreement": [{
+                "agreementDate": "2024-04-15",
+                "legalAgreementIdentification": {
+                  "agreementName": {
+                    "agreementType": "MasterAgreement",
+                    "masterAgreementType": {
+                      "value": "ISDAMaster"
+                    }
+                  },
+                  "vintage": 2002
+                },
+                "contractualParty": [{
+                  "globalReference": "LEI12345678901234567890",
+                  "externalReference": "party1"
+                }, {
+                  "globalReference": "LEI09876543210987654321",
+                  "externalReference": "party2"
+                }]
+              }]
+            }
+          }
+        }],
+        "messageInformation": {
+          "messageType": "TRAD",
+          "messageTimestamp": "2024-04-15T10:00:00Z"
         },
-        "counterparty1": {
-          "entityId": "LEI12345678901234567890",
-          "entityName": "Counterparty 1"
-        },
-        "counterparty2": {
-          "entityId": "LEI09876543210987654321",
-          "entityName": "Counterparty 2"
+        "reportableInformation": {
+          "trade": {
+            "tradeId": "TRADE-001",
+            "tradeDate": "2024-04-15",
+            "product": {
+              "productType": "INTEREST_RATE_SWAP",
+              "notionalAmount": 1000000.00,
+              "notionalCurrency": "USD",
+              "fixedRate": 0.05,
+              "floatingRateIndex": "LIBOR",
+              "floatingRateSpread": 0.0025,
+              "dayCountConvention": "ACT/360",
+              "paymentFrequency": "SEMI_ANNUAL",
+              "maturityDate": "2029-04-15"
+            },
+            "counterparty1": {
+              "entityId": "LEI12345678901234567890",
+              "entityName": "Counterparty 1"
+            },
+            "counterparty2": {
+              "entityId": "LEI09876543210987654321",
+              "entityName": "Counterparty 2"
+            }
+          }
         }
       }
     }
-  } 
+  }
