@@ -1,146 +1,37 @@
 # Digital Regulatory Reporting (DRR) System
 
-## Overview
-The Digital Regulatory Reporting (DRR) system is a framework for validating and processing regulatory trade reports. It supports various financial products including Interest Rate Swaps, Credit Default Swaps, Foreign Exchange trades, and more.
+// ... existing code ...
 
-## Getting Started
+## Sample Output Breakdown
 
-### Prerequisites
-- Java 11 or higher
-- Maven 3.6 or higher
-
-### Building the Project
-```bash
-mvn clean install -DskipTests
+### Complete Sample Output
+```
+14:18:32.470 [DEBUG] Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
+14:18:32.473 [DEBUG] Setting resolved object [key=bbb6a9ab, type=cdm.base.staticdata.party.NaturalPerson]
+14:18:32.477 [DEBUG] Setting resolved object [key=a3344cf2, type=cdm.base.staticdata.party.Party]
+14:18:34.091 [INFO] QualificationReport SUCCESS [
+  qualifiable objects found 3,
+  uniquely qualified objects 3,
+  results: [
+    QualificationResult { SUCCESS on [BusinessEvent:ContractFormation] },
+    QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] },
+    QualificationResult { SUCCESS on [EconomicTerms:CreditDefaultSwap_SingleName] }
+  ]
+]
+14:18:36.341 [DEBUG] Validation FAILURE on [ReportableEvent.originatingWorkflowStep.businessEvent.instruction(0).primitiveInstruction.contractFormation.legalAgreement(2).legalAgreementIdentification.agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
 ```
 
-### Running the Example
-```bash
-mvn exec:java -Dexec.mainClass="org.rosetta.examples.regulatory.ValidateAndQualifySample"
-```
+### Step-by-Step Output Explanation
 
-## Sample Input/Output Analysis
-
-### Sample Input (Credit Default Swap Trade)
-```json
-{
-  "originatingWorkflowStep": {
-    "businessEvent": {
-      "intent": "ContractFormation",
-      "eventDate": "2011-02-04",
-      "effectiveDate": "2011-02-09",
-      "instruction": [{
-        "primitiveInstruction": {
-          "contractFormation": {
-            "legalAgreement": [{
-              "agreementDate": "2002-01-05",
-              "legalAgreementIdentification": {
-                "agreementName": {
-                  "agreementType": "MasterAgreement",
-                  "masterAgreementType": {
-                    "value": "ISDAMaster"
-                  }
-                },
-                "vintage": 1992
-              },
-              "contractualParty": [{
-                "globalReference": "5da152cd",
-                "externalReference": "party2"
-              }, {
-                "globalReference": "59b3a237",
-                "externalReference": "party1"
-              }]
-            }]
-          }
-        },
-        "before": {
-          "value": {
-            "trade": {
-              "tradeIdentifier": [{
-                "issuer": {
-                  "value": "549300IB5Q45JGNPND58"
-                },
-                "assignedIdentifier": [{
-                  "identifier": {
-                    "value": "NEWTRADEXMLXXXXXXX02"
-                  }
-                }],
-                "identifierType": "UniqueTransactionIdentifier"
-              }],
-              "tradeDate": "2011-02-12",
-              "tradableProduct": {
-                "product": {
-                  "contractualProduct": {
-                    "productTaxonomy": [{
-                      "primaryAssetClass": {
-                        "value": "Credit"
-                      }
-                    }, {
-                      "source": "ISDA",
-                      "productQualifier": "CreditDefaultSwap_SingleName"
-                    }],
-                    "economicTerms": {
-                      "effectiveDate": "2009-03-26",
-                      "terminationDate": "2014-06-20",
-                      "payout": {
-                        "creditDefaultPayout": {
-                          "payerReceiver": {
-                            "payer": "Party1",
-                            "receiver": "Party2"
-                          },
-                          "priceQuantity": {
-                            "quantitySchedule": {
-                              "address": {
-                                "scope": "DOCUMENT",
-                                "value": "quantity-1"
-                              }
-                            }
-                          },
-                          "generalTerms": {
-                            "referenceInformation": {
-                              "referenceEntity": {
-                                "entityId": ["8G836J"],
-                                "name": "TENET HEALTHCARE CORPORATION"
-                              },
-                              "referenceObligation": [{
-                                "security": {
-                                  "productIdentifier": [{
-                                    "identifier": {
-                                      "value": "8G836JAF2"
-                                    }
-                                  }],
-                                  "securityType": "Debt"
-                                }
-                              }]
-                            }
-                          },
-                          "transactedPrice": {
-                            "marketFixedRate": 0.02
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }]
-    }
-  }
-}
-```
-
-### Sample Output Breakdown
-
-#### 1. Reference Resolution
+#### 1. Reference Resolution (Lines 1-3)
 ```
 Setting resolved object [key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]
 ```
-This indicates successful linking of party references in the trade data.
+- **What it means**: The system is linking people and parties in the trade
+- **Example**: Linking a trader (NaturalPerson) to their role in the trade
+- **Why it's important**: Ensures all parties are properly identified and connected
 
-#### 2. Qualification Report
+#### 2. Qualification Report (Line 4)
 ```
 QualificationReport SUCCESS [
   qualifiable objects found 3,
@@ -152,91 +43,90 @@ QualificationReport SUCCESS [
   ]
 ]
 ```
-This shows successful qualification of:
-- Business Event as Contract Formation
-- Product as Credit Default Swap
-- Economic Terms as Single Name CDS
+- **What it means**: The system checked if the trade data is properly structured
+- **Breaking it down**:
+  - Found 3 objects to check
+  - All 3 were successfully qualified
+  - The trade is a new contract formation
+  - It's a Credit Default Swap (CDS) trade
+  - The economic terms are for a single-name CDS
+- **Why it's important**: Confirms the trade is properly categorized
 
-#### 3. Validation Results
+#### 3. Validation Results (Line 5)
 ```
 Validation FAILURE on [ReportableEvent.originatingWorkflowStep.businessEvent.instruction(0).primitiveInstruction.contractFormation.legalAgreement(2).legalAgreementIdentification.agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]
 ```
-Indicates missing or invalid fields in the trade data.
+- **What it means**: The system found some issues with the trade data
+- **Breaking it down**:
+  - Issue is with the credit support agreement
+  - Missing or incorrect agreement type
+  - Located in the legal agreement section
+- **Why it's important**: Highlights what needs to be fixed
 
-## Key Components Explained
+### Common Output Patterns
 
-### 1. Trade Structure
-- **Originating Workflow Step**: Contains the business event context
-- **Business Event**: Defines the type and timing of the event
-- **Instruction**: Contains the actual trade details
-- **Legal Agreement**: Specifies the governing agreements
+#### 1. Reference Resolution Messages
+```
+Setting resolved object [key=XXXX, type=YYYY]
+```
+- **Format**: `[key=unique identifier, type=entity type]`
+- **Example**: `[key=bb8afac8, type=cdm.base.staticdata.party.NaturalPerson]`
+- **Meaning**: Successfully linked an entity (person/party) in the trade
 
-### 2. Product Details
-- **Product Taxonomy**: Identifies the product type (Credit Default Swap)
-- **Economic Terms**: Contains pricing and settlement details
-- **Reference Information**: Specifies the underlying reference entity
-- **Payout Structure**: Defines payment flows and amounts
+#### 2. Qualification Messages
+```
+QualificationReport SUCCESS [qualifiable objects found X, uniquely qualified objects Y]
+```
+- **Format**: `[qualifiable objects found X, uniquely qualified objects Y]`
+- **Example**: `[qualifiable objects found 3, uniquely qualified objects 3]`
+- **Meaning**: All objects were successfully categorized
 
-### 3. Party Information
-- **Contractual Parties**: The main parties to the trade
-- **Party References**: Unique identifiers for each party
-- **Party Roles**: Specifies the role of each party
+#### 3. Validation Messages
+```
+Validation FAILURE on [path.to.field] for [DATA_RULE] [RuleName]
+```
+- **Format**: `[path to field] for [rule type] [rule name]`
+- **Example**: `[ReportableEvent...agreementName] for [DATA_RULE] [AgreementNameCreditSupportAgreement]`
+- **Meaning**: Found an issue with specific data
 
-## Common Validation Messages
+### Understanding the Output Flow
 
-### Success Indicators
-- "Qualification successful"
-- "Reference resolution complete"
-- "All required fields present"
+1. **First Step - Reference Resolution**
+   - System checks all party references
+   - Links people to their roles
+   - Verifies all connections are valid
 
-### Warning Messages
-- "Optional field missing"
-- "Value outside typical range"
-- "Reference not found"
+2. **Second Step - Qualification**
+   - System categorizes the trade
+   - Identifies product type
+   - Confirms business event type
 
-### Error Messages
-- "Required field missing"
-- "Invalid format"
-- "Business rule violation"
-- "Reference integrity failure"
+3. **Final Step - Validation**
+   - System checks all data rules
+   - Verifies required fields
+   - Ensures compliance with standards
 
-## Troubleshooting Guide
+### Common Output Scenarios
 
-### 1. Reference Resolution Issues
-- Check party reference formats
-- Verify all referenced entities exist
-- Ensure proper linking between parties
+#### Successful Trade
+```
+[DEBUG] Setting resolved object [successful references]
+[INFO] QualificationReport SUCCESS [all objects qualified]
+[DEBUG] Validation PASS [no failures]
+```
 
-### 2. Qualification Failures
-- Verify product type specification
-- Check business event type
-- Ensure all required fields are present
+#### Trade with Warnings
+```
+[DEBUG] Setting resolved object [successful references]
+[INFO] QualificationReport SUCCESS [all objects qualified]
+[DEBUG] Validation WARNING [non-critical issues]
+```
 
-### 3. Validation Errors
-- Review specific field requirements
-- Check data formats
-- Verify business rule compliance
+#### Failed Trade
+```
+[DEBUG] Setting resolved object [some references failed]
+[INFO] QualificationReport FAILURE [some objects not qualified]
+[DEBUG] Validation FAILURE [critical issues]
+```
 
-## Best Practices
-
-1. **Data Preparation**
-   - Use correct message types
-   - Include all required fields
-   - Follow specified data formats
-
-2. **Validation**
-   - Check qualification report first
-   - Review all validation messages
-   - Address critical errors before warnings
-
-3. **Testing**
-   - Test with sample data first
-   - Verify all product types
-   - Check edge cases
-
-## Support
-
-For issues and questions:
-1. Check the validation logs for specific error messages
-2. Review the example files in the `examples` directory
-3. Consult the product documentation for specific requirements
+// ... rest of existing code ...
